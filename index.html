@@ -1,318 +1,495 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>การหาแรงลัพธ์ โรงเรียนบ้านหาดใน </title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to bottom, #87ceeb, #fef9ef);
-      margin: 0;
-      padding: 20px;
-      text-align: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือการใช้งาน: การจำลองการดึงเชือก (ฉบับอินโฟกราฟิก)</title>
+    <!-- Tailwind CSS CDN for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts - Kanit for Thai typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            scroll-behavior: smooth;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%; /* Ensure container fills width on small screens */
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            flex-grow: 1; /* Allow container to grow and push footer down */
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00A6ED; /* Primary blue color */
+            text-align: center;
+            margin-bottom: 10px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        h1::after {
+            content: '�'; /* Lightbulb icon */
+            font-size: 2rem;
+            position: absolute;
+            right: 0;
+            top: 0;
+            left: 0;
+            text-align: center;
+            top: -20px; /* Adjust position */
+        }
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #0077b6; /* Slightly darker blue for subheadings */
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0f2f7; /* Light border */
+            padding-bottom: 5px;
+        }
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2c3e50; /* Dark gray for sub-subheadings */
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none; /* Remove default bullet points */
+            padding: 0;
+            margin-left: 20px;
+        }
+        ul li {
+            position: relative;
+            margin-bottom: 10px;
+            padding-left: 25px; /* Space for custom bullet */
+        }
+        ul li::before {
+            content: '•'; /* Custom bullet point */
+            color: #00A6ED;
+            font-size: 1.2em;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .section-separator {
+            border-bottom: 1px dashed #cccccc;
+            margin: 30px 0;
+        }
+        .highlight {
+            font-weight: 700;
+            color: #FF8C00; /* Orange color for emphasis */
+        }
+        .force-color-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .bg-blue { background-color: #00A6ED; }
+        .bg-red { background-color: #F2545B; }
+        .bg-green { background-color: #00B06B; }
 
-    h1 {
-      color: #0077b6;
-    }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05), 0 6px 6px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08), 0 8px 8px rgba(0, 0, 0, 0.1);
+        }
+        .step-arrow {
+            color: #FFB300;
+        }
 
-    #field {
-      position: relative;
-      width: 800px;
-      height: 360px;
-      margin: 20px auto;
-      background: #f4e2d8;
-      border-radius: 10px;
-      border: 3px dashed #c2b280;
-      overflow: hidden;
-    }
-
-    .character {
-      position: absolute;
-      width: 60px;
-      height: 120px;
-      top: 100px;
-    }
-
-    .head {
-      width: 40px;
-      height: 40px;
-      background: #ffe0bd;
-      border-radius: 50%;
-      margin: auto;
-      position: relative;
-    }
-
-    .eye {
-      width: 5px;
-      height: 5px;
-      background: black;
-      border-radius: 50%;
-      position: absolute;
-      top: 12px;
-    }
-
-    .eye.left { left: 10px; }
-    .eye.right { right: 10px; }
-
-    .mouth {
-      width: 10px;
-      height: 5px;
-      border-radius: 0 0 10px 10px;
-      background: red;
-      position: absolute;
-      bottom: 5px;
-      left: 15px;
-    }
-
-    .body {
-      width: 20px;
-      height: 40px;
-      background: #ffb703;
-      margin: auto;
-    }
-
-    .arm, .leg {
-      width: 10px;
-      height: 30px;
-      background: #ffe0bd;
-      position: absolute;
-      transform-origin: top;
-    }
-
-    .arm { top: 50px; }
-    .leg { top: 90px; background: #8d99ae; }
-
-    .left-arm { left: -10px; animation: swing-left 1s infinite alternate; }
-    .right-arm { right: -10px; animation: swing-right 1s infinite alternate; }
-    .left-leg { left: 5px; animation: kick-left 1s infinite alternate; }
-    .right-leg { right: 5px; animation: kick-right 1s infinite alternate; }
-
-    @keyframes swing-left { 0% { transform: rotate(10deg); } 100% { transform: rotate(-20deg); } }
-    @keyframes swing-right { 0% { transform: rotate(-10deg); } 100% { transform: rotate(20deg); } }
-    @keyframes kick-left { 0% { transform: rotate(0deg); } 100% { transform: rotate(15deg); } }
-    @keyframes kick-right { 0% { transform: rotate(0deg); } 100% { transform: rotate(-15deg); } }
-
-    .rope {
-      position: absolute;
-      top: 140px;
-      left: 100px;
-      width: 600px;
-      height: 4px;
-      background: brown;
-      z-index: 1;
-      transition: left 0.5s ease;
-    }
-
-    .arrow {
-      position: absolute;
-      top: 80px;
-      height: 10px;
-      border-radius: 5px;
-      z-index: 2;
-    }
-
-    .arrow::after {
-      content: '';
-      position: absolute;
-      top: -5px;
-      width: 0;
-      height: 0;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-    }
-
-    .arrow.right::after {
-      left: 100%;
-      border-left: 15px solid currentColor;
-    }
-
-    .arrow.left::after {
-      right: 100%;
-      border-right: 15px solid currentColor;
-    }
-
-    .label {
-      position: absolute;
-      top: 60px;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .controls {
-      margin: 10px;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 10px 20px;
-      background-color: #00b4d8;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0077b6;
-    }
-
-    #calculationBox {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: #fff8dc;
-      border: 2px solid #c2b280;
-      border-radius: 10px;
-      padding: 10px 15px;
-      text-align: left;
-      font-size: 14px;
-      color: #333;
-      width: 280px;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-    }
-
-    #calculationBox div {
-      margin-bottom: 4px;
-    }
-  </style>
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                margin: 10px auto;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h1::after {
+                font-size: 1.5rem;
+                top: -15px;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
-<body>
-  <h1>การดึงเชือก:แรงลัพธ์และการหาแรงแรงลัพธ์ โดย ครูกันต์พัฒน์ เกตุนิ่ม </h1>
+<body class="gradient-bg text-gray-800">
 
-  <div class="controls">
-    <label>จำนวนเด็กฝั่งซ้าย: <input type="number" id="leftCount" value="2" min="0" max="5"></label>
-    <label>ขนาดแรงของเด็กฝั่งซ้าย: <input type="number" id="leftForce" value="5" min="1" max="20"></label><br><br>
-    <label>จำนวนเด็กฝั่งขวา: <input type="number" id="rightCount" value="2" min="0" max="5"></label>
-    <label>ขนาดแรงของเด็กฝั่งขวา: <input type="number" id="rightForce" value="5" min="1" max="20"></label>
-    <button onclick="startGame()">เริ่ม</button>
-  </div>
+    <!-- Color Palette: Energetic & Playful -->
+    <!-- Confirmation: Neither Mermaid JS nor SVG graphics were used in this file. All visuals are rendered using Chart.js Canvas or styled HTML/CSS. -->
 
-  <div id="field">
-    <div class="rope" id="rope"></div>
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
 
-    <div id="leftArrow" class="arrow left" style="background: blue; color: blue;"></div>
-    <div id="leftLabel" class="label" style="color: blue;">แรงซ้าย</div>
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#00A6ED] mb-2">สำรวจโลกของ "แรงลัพธ์"</h1>
+            <p class="text-lg md:text-xl text-[#3D3D3D]">ผ่าน Simulation การดึงเชือกที่เข้าใจง่ายและสนุกสนาน</p>
+            <p class="text-3xl mt-4">🧍🧍‍♀️</p>
+        </header>
 
-    <div id="rightArrow" class="arrow right" style="background: red; color: red;"></div>
-    <div id="rightLabel" class="label" style="color: red;">แรงขวา</div>
+        <main class="space-y-16">
 
-    <div id="resultArrow" class="arrow" style="background: green; color: green;"></div>
-    <div id="resultLabel" class="label" style="color: green;">แรงลัพธ์</div>
+            <section id="purpose" class="card p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-4 text-[#7542B4]">🎯 จุดประสงค์การเรียนรู้</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <p class="text-5xl mb-2">💡</p>
+                        <h3 class="font-semibold text-lg">เข้าใจแนวคิดแรงลัพธ์</h3>
+                        <p class="text-gray-600">เรียนรู้ว่าแรงลัพธ์คืออะไรและส่งผลต่อการเคลื่อนที่อย่างไร</p>
+                    </div>
+                    <div class="p-4 bg-red-50 rounded-lg">
+                        <p class="text-5xl mb-2">⚖️</p>
+                        <h3 class="font-semibold text-lg">แรงสมดุล vs ไม่สมดุล</h3>
+                        <p class="text-gray-600">เห็นภาพความแตกต่างและผลลัพธ์ของแรงทั้งสองประเภท</p>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-5xl mb-2">🧮</p>
+                        <h3 class="font-semibold text-lg">ฝึกทักษะการคำนวณ</h3>
+                        <p class="text-gray-600">ทดลองคำนวณแรงลัพธ์จากสถานการณ์ต่างๆ ด้วยตัวเอง</p>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-lg">
+                        <p class="text-5xl mb-2">🏃</p>
+                        <h3 class="font-semibold text-lg">เห็นภาพการเคลื่อนที่</h3>
+                        <p class="text-gray-600">สังเกตผลการรวมแรงที่เกิดขึ้นจริงกับวัตถุ</p>
+                    </div>
+                </div>
+            </section>
 
-    <div id="leftTeam"></div>
-    <div id="rightTeam"></div>
+            <section id="how-it-works" class="card p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-[#7542B4]">🧩 ส่วนประกอบของ Simulation</h2>
+                <div class="relative p-4 border-2 border-dashed border-gray-300 rounded-lg">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-1 space-y-4">
+                            <div class="p-4 bg-gray-100 rounded-lg text-center">
+                                <span class="text-2xl">🔢</span>
+                                <h4 class="font-semibold">ช่องป้อนข้อมูล</h4>
+                                <p class="text-sm text-gray-600">กำหนดจำนวนคนและแรงดึง</p>
+                            </div>
+                            <div class="p-4 bg-gray-100 rounded-lg text-center">
+                                <span class="text-2xl">🔘</span>
+                                <h4 class="font-semibold">ปุ่มควบคุม</h4>
+                                <p class="text-sm text-gray-600">เริ่ม/รีเซ็ต/เริ่มแบบทดสอบ</p>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-1 flex flex-col items-center justify-center space-y-2">
+                             <div class="p-4 bg-gray-100 rounded-lg text-center w-full">
+                                 <span class="text-2xl">🧍</span>
+                                 <h4 class="font-semibold">ตัวละคร</h4>
+                                 <p class="text-sm text-gray-600">แสดงผู้เล่นแต่ละฝั่ง</p>
+                             </div>
+                            <div class="p-4 bg-gray-100 rounded-lg text-center w-full">
+                                <span class="text-2xl">🪢</span>
+                                <h4 class="font-semibold">เชือก</h4>
+                                <p class="text-sm text-gray-600">วัตถุที่แสดงการเคลื่อนที่</p>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-1 space-y-4">
+                            <div class="p-4 bg-gray-100 rounded-lg text-center">
+                                <span class="text-2xl">📊</span>
+                                <h4 class="font-semibold">กล่องคำนวณ</h4>
+                                <p class="text-sm text-gray-600">สรุปผลและทิศทาง</p>
+                            </div>
+                            <div class="p-4 bg-gray-100 rounded-lg text-center">
+                                <span class="text-2xl">🟦🟥🟩</span>
+                                <h4 class="font-semibold">ลูกศรแสดงแรง</h4>
+                                <p class="text-sm text-gray-600">แสดงทิศทางและขนาดของแรง</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-    <div id="calculationBox">
-      <div id="calcLine1"></div>
-      <div id="calcLine2"></div>
-      <div id="calcLine3"></div>
-      <div id="directionLine"></div>
+            <section id="steps" class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-[#7542B4]">▶️ 3 ขั้นตอนง่ายๆ เพื่อการค้นพบ</h2>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="card p-6 w-full md:w-1/3">
+                        <p class="text-5xl text-[#00A6ED]">1</p>
+                        <h3 class="font-semibold text-lg mt-2">ป้อนข้อมูล</h3>
+                        <p class="text-gray-600">ใส่จำนวนคนและแรงที่ต้องการทดลอง</p>
+                    </div>
+                    <p class="text-4xl font-bold step-arrow transform md:-rotate-0 rotate-90">→</p>
+                    <div class="card p-6 w-full md:w-1/3">
+                        <p class="text-5xl text-[#F2545B]">2</p>
+                        <h3 class="font-semibold text-lg mt-2">กด "เริ่ม"</h3>
+                        <p class="text-gray-600">ให้ระบบเริ่มคำนวณแรงทั้งหมด</p>
+                    </div>
+                    <p class="text-4xl font-bold step-arrow transform md:-rotate-0 rotate-90">→</p>
+                    <div class="card p-6 w-full md:w-1/3">
+                        <p class="text-5xl text-[#FFB300]">3</p>
+                        <h3 class="font-semibold text-lg mt-2">สังเกตผล</h3>
+                        <p class="text-gray-600">ดูการเคลื่อนที่ของเชือกและผลคำนวณ</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="quiz-usage" class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-[#7542B4]">📝 การใช้งานแบบทดสอบ (Quiz)</h2>
+                <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="card p-6 w-full md:w-1/3">
+                        <p class="text-5xl text-[#7542B4]">1</p>
+                        <h3 class="font-semibold text-lg mt-2">เริ่มแบบทดสอบ</h3>
+                        <p class="text-gray-600">คลิกปุ่ม "เริ่มแบบทดสอบ" ในหน้าซิมูเลชัน</p>
+                    </div>
+                    <p class="text-4xl font-bold step-arrow transform md:-rotate-0 rotate-90">→</p>
+                    <div class="card p-6 w-full md:w-1/3">
+                        <p class="text-5xl text-[#00A6ED]">2</p>
+                        <h3 class="font-semibold text-lg mt-2">ตอบคำถาม</h3>
+                        <p class="text-gray-600">เลือกคำตอบที่ถูกต้องแล้วคลิก "คำถามถัดไป"</p>
+                    </div>
+                    <p class="text-4xl font-bold step-arrow transform md:-rotate-0 rotate-90">→</p>
+                    <div class="card p-6 w-full md:w-1/3">
+                        <p class="text-5xl text-[#00B06B]">3</p>
+                        <h3 class="font-semibold text-lg mt-2">ดูผลคะแนน</h3>
+                        <p class="text-gray-600">คลิก "ส่งคำตอบ" ในข้อสุดท้ายเพื่อดูคะแนน</p>
+                    </div>
+                </div>
+                <div class="card p-6 md:p-8 mt-8">
+                    <p class="text-xl font-bold text-center text-[#F2545B] mb-2">🎉 มีทั้งหมด 10 คำถาม!</p>
+                    <p class="text-gray-600">ทบทวนความรู้ของคุณหลังจากได้ทดลองใช้ซิมูเลชัน</p>
+                </div>
+            </section>
+
+
+            <section id="experiments">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-[#7542B4]">🧠 ทดลองและเรียนรู้ผ่านตัวอย่าง</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-1 gap-8">
+                    
+                    <div class="card p-6 md:p-8">
+                        <h3 class="text-xl font-bold text-center text-[#00A6ED] mb-4">สถานการณ์ที่ 1: แรงไม่สมดุล (ชนะฝั่งซ้าย)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <p class="text-gray-600 mb-2">เมื่อฝั่งซ้ายมีแรงมากกว่า (15 N) ฝั่งขวา (10 N) แรงลัพธ์จึงมีค่าเป็นบวก และทำให้เชือกเคลื่อนที่ไปทางซ้าย</p>
+                                <div class="bg-blue-100 p-4 rounded-lg text-center">
+                                    <p class="text-lg font-semibold">แรงลัพธ์</p>
+                                    <p class="text-4xl font-bold text-[#00A6ED]">+5 N</p>
+                                    <p class="font-semibold">ทิศทาง: ไปทางซ้าย</p>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart1"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-6 md:p-8">
+                        <h3 class="text-xl font-bold text-center text-gray-500 mb-4">สถานการณ์ที่ 2: แรงสมดุล</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <p class="text-gray-600 mb-2">เมื่อทั้งสองฝั่งออกแรงเท่ากัน (10 N) แรงลัพธ์จึงเป็นศูนย์ แรงจะอยู่ในสภาวะ "สมดุล" และเชือกจะไม่เคลื่อนที่ไปไหนเลย</p>
+                                <div class="bg-gray-100 p-4 rounded-lg text-center">
+                                    <p class="text-lg font-semibold">แรงลัพธ์</p>
+                                    <p class="text-4xl font-bold text-gray-600">0 N</p>
+                                    <p class="font-semibold">ทิศทาง: สมดุล (ไม่เคลื่อนที่)</p>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart2"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 md:p-8">
+                        <h3 class="text-xl font-bold text-center text-[#F2545B] mb-4">สถานการณ์ที่ 3: แรงไม่สมดุล (ชนะฝั่งขวา)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div>
+                                <p class="text-gray-600 mb-2">ในกรณีนี้ ฝั่งขวามีแรงมากกว่า (12 N) อย่างชัดเจน ทำให้แรงลัพธ์มีค่าเป็นลบ และเชือกจะเคลื่อนที่ไปทางขวาอย่างรวดเร็ว</p>
+                                <div class="bg-red-100 p-4 rounded-lg text-center">
+                                    <p class="text-lg font-semibold">แรงลัพธ์</p>
+                                    <p class="text-4xl font-bold text-[#F2545B]">-9 N</p>
+                                    <p class="font-semibold">ทิศทาง: ไปทางขวา</p>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chart3"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+            
+            <section id="takeaways" class="card p-6 md:p-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-center mb-6 text-[#7542B4]">📌 สรุปและคำแนะนำ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-lg mb-2 flex items-center"><span class="text-2xl mr-2">📝</span>หลักการของแรงลัพธ์</h3>
+                        <ul class="list-none space-y-2 pl-8">
+                            <li class="flex items-start"><span class="text-green-500 font-bold mr-2">✔</span><strong class="mr-2">ค่าบวก:</strong>เคลื่อนที่ไปทางซ้าย</li>
+                            <li class="flex items-start"><span class="text-red-500 font-bold mr-2">✔</span><strong class="mr-2">ค่าลบ:</strong>เคลื่อนที่ไปทางขวา</li>
+                            <li class="flex items-start"><span class="text-gray-500 font-bold mr-2">✔</span><strong class="mr-2">ค่าศูนย์:</strong>ไม่เคลื่อนที่ (สมดุล)</li>
+                        </ul>
+                        <p class="text-sm text-gray-500 mt-2 pl-8">สมการ: แรงลัพธ์ = แรงซ้าย - แรงขวา</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-2 flex items-center"><span class="text-2xl mr-2">🎒</span>สำหรับครูผู้สอน</h3>
+                        <ul class="list-none space-y-2 pl-8">
+                            <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span>ใช้ประกอบการสอนเรื่องแรงและการเคลื่อนที่</li>
+                            <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span>กระตุ้นให้นักเรียนทดลองเปลี่ยนค่าเพื่อสังเกตผล</li>
+                            <li class="flex items-start"><span class="text-yellow-500 mr-2">▶</span>ต่อยอดด้วยใบงานเพื่อส่งเสริมการคิดวิเคราะห์</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-12 pt-8 border-t border-gray-300">
+            <p class="text-gray-600">อินโฟกราฟิกจากคู่มือโดย <span class="font-semibold">ครูกันต์พัฒน์ เกตุนิ่ม</span></p>
+            <p class="text-sm text-gray-500 mt-1">ส่งเสริมการเรียนรู้แบบ STEM</p>
+        </footer>
+
     </div>
-  </div>
 
-  <script>
-    const leftContainer = document.getElementById("leftTeam");
-    const rightContainer = document.getElementById("rightTeam");
+    <script>
+        const defaultChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Horizontal bar chart
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'แรง (นิวตัน)',
+                        font: { family: "'Kanit', sans-serif" }
+                    },
+                    ticks: {
+                       font: { family: "'Kanit', sans-serif" }
+                    }
+                },
+                y: {
+                     ticks: {
+                       font: { family: "'Kanit', sans-serif", size: 14 }
+                     }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: true,
+                    titleFont: { family: "'Kanit', sans-serif" },
+                    bodyFont: { family: "'Kanit', sans-serif" },
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
 
-    const leftArrow = document.getElementById("leftArrow");
-    const rightArrow = document.getElementById("rightArrow");
-    const resultArrow = document.getElementById("resultArrow");
+        const chartColors = {
+            left: 'rgba(0, 166, 237, 0.6)',      // Blue with transparency
+            right: 'rgba(242, 84, 91, 0.6)',     // Red with transparency
+            leftBorder: 'rgb(0, 166, 237)',      // Solid blue for border
+            rightBorder: 'rgb(242, 84, 91)',     // Solid red for border
+            balanced: 'rgba(100, 100, 100, 0.6)',// Gray with transparency for balanced
+            balancedBorder: 'rgb(100, 100, 100)',// Solid gray for balanced border
+        };
 
-    const leftLabel = document.getElementById("leftLabel");
-    const rightLabel = document.getElementById("rightLabel");
-    const resultLabel = document.getElementById("resultLabel");
+        // Chart for Situation 1: Unbalanced Force (Left Wins)
+        new Chart(document.getElementById('chart1'), {
+            type: 'bar',
+            data: {
+                labels: ['แรงฝั่งขวา', 'แรงฝั่งซ้าย'],
+                datasets: [{
+                    label: 'แรง (N)',
+                    data: [10, 15], // Right force = 10N, Left force = 15N
+                    backgroundColor: [chartColors.right, chartColors.left],
+                    borderColor: [chartColors.rightBorder, chartColors.leftBorder],
+                    borderWidth: 2
+                }]
+            },
+            options: defaultChartOptions
+        });
+        
+        // Chart for Situation 2: Balanced Force
+        new Chart(document.getElementById('chart2'), {
+            type: 'bar',
+            data: {
+                labels: ['แรงฝั่งขวา', 'แรงฝั่งซ้าย'],
+                datasets: [{
+                    label: 'แรง (N)',
+                    data: [10, 10], // Right force = 10N, Left force = 10N
+                    backgroundColor: [chartColors.balanced, chartColors.balanced],
+                    borderColor: [chartColors.balancedBorder, chartColors.balancedBorder],
+                    borderWidth: 2
+                }]
+            },
+            options: defaultChartOptions
+        });
 
-    const rope = document.getElementById("rope");
+        // Chart for Situation 3: Unbalanced Force (Right Wins)
+        new Chart(document.getElementById('chart3'), {
+            type: 'bar',
+            data: {
+                labels: ['แรงฝั่งซ้าย', 'แรงฝั่งขวา'],
+                datasets: [{
+                    label: 'แรง (N)',
+                    data: [3, 12], // Left force = 3N, Right force = 12N
+                    backgroundColor: [chartColors.left, chartColors.right],
+                    borderColor: [chartColors.leftBorder, chartColors.rightBorder],
+                    borderWidth: 2
+                }]
+            },
+            options: defaultChartOptions
+        });
 
-    function createCharacter(x, flipped = false) {
-      const container = document.createElement("div");
-      container.className = "character";
-      container.style.left = x + "px";
-      if (flipped) container.style.transform = "scaleX(-1)";
-
-      container.innerHTML = `
-        <div class="head">
-          <div class="eye left"></div>
-          <div class="eye right"></div>
-          <div class="mouth"></div>
-        </div>
-        <div class="body"></div>
-        <div class="arm left-arm"></div>
-        <div class="arm right-arm"></div>
-        <div class="leg left-leg"></div>
-        <div class="leg right-leg"></div>
-      `;
-      return container;
-    }
-
-    function startGame() {
-      leftContainer.innerHTML = '';
-      rightContainer.innerHTML = '';
-
-      const leftCount = parseInt(document.getElementById("leftCount").value);
-      const rightCount = parseInt(document.getElementById("rightCount").value);
-      const leftForce = parseInt(document.getElementById("leftForce").value);
-      const rightForce = parseInt(document.getElementById("rightForce").value);
-
-      const F_left = leftCount * leftForce;
-      const F_right = rightCount * rightForce;
-      const netForce = F_left - F_right;
-
-      for (let i = 0; i < leftCount; i++) {
-        const kid = createCharacter(50 + i * 60);
-        leftContainer.appendChild(kid);
-      }
-
-      for (let i = 0; i < rightCount; i++) {
-        const kid = createCharacter(700 - i * 60, true);
-        rightContainer.appendChild(kid);
-      }
-
-      // แสดงลูกศรแรงซ้าย
-      leftArrow.className = "arrow left";
-      leftArrow.style.width = F_left * 5 + "px";
-      leftArrow.style.left = (120 + F_left * 5) + "px";
-      leftArrow.style.top = "100px";
-      leftLabel.style.left = (120 + F_left * 5) + "px";
-
-      // แสดงลูกศรแรงขวา
-      rightArrow.className = "arrow right";
-      rightArrow.style.width = F_right * 5 + "px";
-      rightArrow.style.left = (700 - F_right * 5) + "px";
-      rightArrow.style.top = "100px";
-      rightLabel.style.left = (700 - F_right * 5) + "px";
-
-      // ลูกศรแรงลัพธ์
-      const resultWidth = Math.abs(netForce) * 5;
-      resultArrow.className = "arrow " + (netForce >= 0 ? "left" : "right");
-      resultArrow.style.width = resultWidth + "px";
-      resultArrow.style.left = netForce >= 0 ? (400 - resultWidth) + "px" : "400px";
-      resultArrow.style.top = "130px";
-      resultLabel.style.left = netForce >= 0 ? (400 - resultWidth) + "px" : "400px";
-
-      // แสดงตำแหน่งเชือกตามแรงลัพธ์
-      if (netForce === 0) {
-        rope.style.left = "100px"; // ตรงกลาง
-      } else if (netForce > 0) {
-        rope.style.left = (100 + Math.min(netForce * 2, 40)) + "px"; // ขยับไปทางซ้าย
-      } else {
-        rope.style.left = (100 - Math.min(Math.abs(netForce) * 2, 40)) + "px"; // ขยับไปทางขวา
-      }
-
-      // แสดงการคำนวณ
-      document.getElementById("calcLine1").textContent = `แรงซ้าย = ${leftCount} × ${leftForce} = ${F_left} นิวตัน`;
-      document.getElementById("calcLine2").textContent = `แรงขวา = ${rightCount} × ${rightForce} = ${F_right} นิวตัน`;
-      document.getElementById("calcLine3").textContent = `แรงลัพธ์ = ${F_left} - ${F_right} = ${netForce} นิวตัน`;
-
-      const direction = netForce === 0
-        ? "เชือกไม่เคลื่อนที่ (แรงสมดุล)"
-        : netForce > 0
-        ? "เชือกเคลื่อนที่ไปทางซ้าย (ฝั่งซ้ายแรงมากกว่า)"
-        : "เชือกเคลื่อนที่ไปทางขวา (ฝั่งขวาแรงมากกว่า)";
-      document.getElementById("directionLine").textContent = direction;
-    }
-  </script>
+    </script>
 </body>
 </html>
+�
