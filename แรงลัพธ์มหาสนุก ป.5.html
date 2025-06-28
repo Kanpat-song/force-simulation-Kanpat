@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>การหาแรงลัพธ์ โรงเรียนบ้านหาดใน </title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #87ceeb, #fef9ef);
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #0077b6;
+    }
+
+    #field {
+      position: relative;
+      width: 800px;
+      height: 360px;
+      margin: 20px auto;
+      background: #f4e2d8;
+      border-radius: 10px;
+      border: 3px dashed #c2b280;
+      overflow: hidden;
+    }
+
+    .character {
+      position: absolute;
+      width: 60px;
+      height: 120px;
+      top: 100px;
+    }
+
+    .head {
+      width: 40px;
+      height: 40px;
+      background: #ffe0bd;
+      border-radius: 50%;
+      margin: auto;
+      position: relative;
+    }
+
+    .eye {
+      width: 5px;
+      height: 5px;
+      background: black;
+      border-radius: 50%;
+      position: absolute;
+      top: 12px;
+    }
+
+    .eye.left { left: 10px; }
+    .eye.right { right: 10px; }
+
+    .mouth {
+      width: 10px;
+      height: 5px;
+      border-radius: 0 0 10px 10px;
+      background: red;
+      position: absolute;
+      bottom: 5px;
+      left: 15px;
+    }
+
+    .body {
+      width: 20px;
+      height: 40px;
+      background: #ffb703;
+      margin: auto;
+    }
+
+    .arm, .leg {
+      width: 10px;
+      height: 30px;
+      background: #ffe0bd;
+      position: absolute;
+      transform-origin: top;
+    }
+
+    .arm { top: 50px; }
+    .leg { top: 90px; background: #8d99ae; }
+
+    .left-arm { left: -10px; animation: swing-left 1s infinite alternate; }
+    .right-arm { right: -10px; animation: swing-right 1s infinite alternate; }
+    .left-leg { left: 5px; animation: kick-left 1s infinite alternate; }
+    .right-leg { right: 5px; animation: kick-right 1s infinite alternate; }
+
+    @keyframes swing-left { 0% { transform: rotate(10deg); } 100% { transform: rotate(-20deg); } }
+    @keyframes swing-right { 0% { transform: rotate(-10deg); } 100% { transform: rotate(20deg); } }
+    @keyframes kick-left { 0% { transform: rotate(0deg); } 100% { transform: rotate(15deg); } }
+    @keyframes kick-right { 0% { transform: rotate(0deg); } 100% { transform: rotate(-15deg); } }
+
+    .rope {
+      position: absolute;
+      top: 140px;
+      left: 100px;
+      width: 600px;
+      height: 4px;
+      background: brown;
+      z-index: 1;
+      transition: left 0.5s ease;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 80px;
+      height: 10px;
+      border-radius: 5px;
+      z-index: 2;
+    }
+
+    .arrow::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+    }
+
+    .arrow.right::after {
+      left: 100%;
+      border-left: 15px solid currentColor;
+    }
+
+    .arrow.left::after {
+      right: 100%;
+      border-right: 15px solid currentColor;
+    }
+
+    .label {
+      position: absolute;
+      top: 60px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .controls {
+      margin: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #00b4d8;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0077b6;
+    }
+
+    #calculationBox {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: #fff8dc;
+      border: 2px solid #c2b280;
+      border-radius: 10px;
+      padding: 10px 15px;
+      text-align: left;
+      font-size: 14px;
+      color: #333;
+      width: 280px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    }
+
+    #calculationBox div {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>การดึงเชือก:แรงลัพธ์และการหาแรงแรงลัพธ์ โดย ครูกันต์พัฒน์ เกตุนิ่ม </h1>
+
+  <div class="controls">
+    <label>จำนวนเด็กฝั่งซ้าย: <input type="number" id="leftCount" value="2" min="0" max="5"></label>
+    <label>ขนาดแรงของเด็กฝั่งซ้าย: <input type="number" id="leftForce" value="5" min="1" max="20"></label><br><br>
+    <label>จำนวนเด็กฝั่งขวา: <input type="number" id="rightCount" value="2" min="0" max="5"></label>
+    <label>ขนาดแรงของเด็กฝั่งขวา: <input type="number" id="rightForce" value="5" min="1" max="20"></label>
+    <button onclick="startGame()">เริ่ม</button>
+  </div>
+
+  <div id="field">
+    <div class="rope" id="rope"></div>
+
+    <div id="leftArrow" class="arrow left" style="background: blue; color: blue;"></div>
+    <div id="leftLabel" class="label" style="color: blue;">แรงซ้าย</div>
+
+    <div id="rightArrow" class="arrow right" style="background: red; color: red;"></div>
+    <div id="rightLabel" class="label" style="color: red;">แรงขวา</div>
+
+    <div id="resultArrow" class="arrow" style="background: green; color: green;"></div>
+    <div id="resultLabel" class="label" style="color: green;">แรงลัพธ์</div>
+
+    <div id="leftTeam"></div>
+    <div id="rightTeam"></div>
+
+    <div id="calculationBox">
+      <div id="calcLine1"></div>
+      <div id="calcLine2"></div>
+      <div id="calcLine3"></div>
+      <div id="directionLine"></div>
+    </div>
+  </div>
+
+  <script>
+    const leftContainer = document.getElementById("leftTeam");
+    const rightContainer = document.getElementById("rightTeam");
+
+    const leftArrow = document.getElementById("leftArrow");
+    const rightArrow = document.getElementById("rightArrow");
+    const resultArrow = document.getElementById("resultArrow");
+
+    const leftLabel = document.getElementById("leftLabel");
+    const rightLabel = document.getElementById("rightLabel");
+    const resultLabel = document.getElementById("resultLabel");
+
+    const rope = document.getElementById("rope");
+
+    function createCharacter(x, flipped = false) {
+      const container = document.createElement("div");
+      container.className = "character";
+      container.style.left = x + "px";
+      if (flipped) container.style.transform = "scaleX(-1)";
+
+      container.innerHTML = `
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+        <div class="arm left-arm"></div>
+        <div class="arm right-arm"></div>
+        <div class="leg left-leg"></div>
+        <div class="leg right-leg"></div>
+      `;
+      return container;
+    }
+
+    function startGame() {
+      leftContainer.innerHTML = '';
+      rightContainer.innerHTML = '';
+
+      const leftCount = parseInt(document.getElementById("leftCount").value);
+      const rightCount = parseInt(document.getElementById("rightCount").value);
+      const leftForce = parseInt(document.getElementById("leftForce").value);
+      const rightForce = parseInt(document.getElementById("rightForce").value);
+
+      const F_left = leftCount * leftForce;
+      const F_right = rightCount * rightForce;
+      const netForce = F_left - F_right;
+
+      for (let i = 0; i < leftCount; i++) {
+        const kid = createCharacter(50 + i * 60);
+        leftContainer.appendChild(kid);
+      }
+
+      for (let i = 0; i < rightCount; i++) {
+        const kid = createCharacter(700 - i * 60, true);
+        rightContainer.appendChild(kid);
+      }
+
+      // แสดงลูกศรแรงซ้าย
+      leftArrow.className = "arrow left";
+      leftArrow.style.width = F_left * 5 + "px";
+      leftArrow.style.left = (120 + F_left * 5) + "px";
+      leftArrow.style.top = "100px";
+      leftLabel.style.left = (120 + F_left * 5) + "px";
+
+      // แสดงลูกศรแรงขวา
+      rightArrow.className = "arrow right";
+      rightArrow.style.width = F_right * 5 + "px";
+      rightArrow.style.left = (700 - F_right * 5) + "px";
+      rightArrow.style.top = "100px";
+      rightLabel.style.left = (700 - F_right * 5) + "px";
+
+      // ลูกศรแรงลัพธ์
+      const resultWidth = Math.abs(netForce) * 5;
+      resultArrow.className = "arrow " + (netForce >= 0 ? "left" : "right");
+      resultArrow.style.width = resultWidth + "px";
+      resultArrow.style.left = netForce >= 0 ? (400 - resultWidth) + "px" : "400px";
+      resultArrow.style.top = "130px";
+      resultLabel.style.left = netForce >= 0 ? (400 - resultWidth) + "px" : "400px";
+
+      // แสดงตำแหน่งเชือกตามแรงลัพธ์
+      if (netForce === 0) {
+        rope.style.left = "100px"; // ตรงกลาง
+      } else if (netForce > 0) {
+        rope.style.left = (100 + Math.min(netForce * 2, 40)) + "px"; // ขยับไปทางซ้าย
+      } else {
+        rope.style.left = (100 - Math.min(Math.abs(netForce) * 2, 40)) + "px"; // ขยับไปทางขวา
+      }
+
+      // แสดงการคำนวณ
+      document.getElementById("calcLine1").textContent = `แรงซ้าย = ${leftCount} × ${leftForce} = ${F_left} นิวตัน`;
+      document.getElementById("calcLine2").textContent = `แรงขวา = ${rightCount} × ${rightForce} = ${F_right} นิวตัน`;
+      document.getElementById("calcLine3").textContent = `แรงลัพธ์ = ${F_left} - ${F_right} = ${netForce} นิวตัน`;
+
+      const direction = netForce === 0
+        ? "เชือกไม่เคลื่อนที่ (แรงสมดุล)"
+        : netForce > 0
+        ? "เชือกเคลื่อนที่ไปทางซ้าย (ฝั่งซ้ายแรงมากกว่า)"
+        : "เชือกเคลื่อนที่ไปทางขวา (ฝั่งขวาแรงมากกว่า)";
+      document.getElementById("directionLine").textContent = direction;
+    }
+  </script>
+</body>
+</html>
